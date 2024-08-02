@@ -3,8 +3,6 @@ package io.github.devandref.library_events_producer.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.github.devandref.library_events_producer.domain.LibraryEvent;
 import io.github.devandref.library_events_producer.producer.LibraryEventsProducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,8 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class LibraryEventsController {
-
-    private static final Logger log = LoggerFactory.getLogger(LibraryEventsController.class);
 
     private final LibraryEventsProducer libraryEventsProducer;
 
