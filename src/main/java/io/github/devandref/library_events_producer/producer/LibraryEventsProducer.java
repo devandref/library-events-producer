@@ -3,6 +3,7 @@ package io.github.devandref.library_events_producer.producer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.devandref.library_events_producer.domain.LibraryEvent;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Component
 public class LibraryEventsProducer {
@@ -39,6 +41,36 @@ public class LibraryEventsProducer {
                         handleSucess(key, value, sendResult);
                     }
                 });
+    }
+
+    //TODO exemplo de envio sincrono
+    public SendResult<Integer, String> sendLibraryEvent_approach2(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException {
+        var key = libraryEvent.libraryEventId();
+        var value = objectMapper.writeValueAsString(libraryEvent);
+        var sendResult = kafkaTemplate.send(topic, key, value).get();
+        handleSucess(key, value, sendResult);
+        return sendResult;
+    }
+
+    //TODO exemplo de envio com objeto Producer Record
+    public CompletableFuture<SendResult<Integer, String>> sendLibraryEvent_approach3(LibraryEvent libraryEvent) throws JsonProcessingException {
+        var key = libraryEvent.libraryEventId();
+        var value = objectMapper.writeValueAsString(libraryEvent);
+
+        var producerRecord = buildProducerRecord(key, value);
+        var completableFuture = kafkaTemplate.send(topic, key, value);
+        return completableFuture
+                .whenComplete((sendResult, throwable) -> {
+                    if (throwable != null) {
+                        handleFailure(key, value, throwable);
+                    } else {
+                        handleSucess(key, value, sendResult);
+                    }
+                });
+    }
+
+    private ProducerRecord<Integer, String> buildProducerRecord(Integer key, String value) {
+        return new ProducerRecord<>(topic, key, value);
     }
 
     private void handleSucess(Integer key, String value, SendResult<Integer, String> sendResult) {
