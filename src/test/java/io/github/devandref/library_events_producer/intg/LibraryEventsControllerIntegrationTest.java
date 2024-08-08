@@ -1,4 +1,4 @@
-package io.github.devandref.library_events_producer.controller;
+package io.github.devandref.library_events_producer.intg;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.devandref.library_events_producer.domain.LibraryEvent;
